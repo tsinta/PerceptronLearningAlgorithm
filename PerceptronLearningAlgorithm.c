@@ -12,9 +12,9 @@ initPLA(char *fileName, int ***data, PLAData **pData
 {
     /*out: Can the file do PLA?*/
     size_t numVal;
-    *data = ReadTrainingData(fileName, numData, &numVal);
+    *data = readTrainingData(fileName, numData, &numVal);
     
-    if (data == NULL || numData == 0 || numVal <= 2)
+    if (*data == NULL || numData == 0 || numVal <= 2)
         return FALSE;
     *pData = convertToPLAData(*data, *numData, numVal);
     *numPLAVal = numVal - 1;
@@ -43,13 +43,18 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
 {
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
+    static size_t countUp = 0;  /*if up to numData, end the iteration*/
     size_t countAdjust = 0;
     
     while (iter > 0) {
         if (*startIdx == numData)
             *startIdx = 0;
-        if (oneTraining(pData[(*startIdx)++], wt, numPLAVal, isStrict, showDetail))
+        if (oneTraining(pData[(*startIdx)++], wt, numPLAVal, isStrict, showDetail)) {
+            countUp = 0;
             ++countAdjust;
+        }
+        else if (++countUp == numData)
+            break;
         --iter;
     }
     return countAdjust;

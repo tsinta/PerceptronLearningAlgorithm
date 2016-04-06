@@ -203,7 +203,7 @@ int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
     return data;
 }
 
-int** ReadTrainingData(char *fileName, size_t *numData, size_t *numVal)
+int** readTrainingData(char *fileName, size_t *numData, size_t *numVal)
 {
     /*out: int data in file*/
     FILE *f = fopen(fileName, "r");

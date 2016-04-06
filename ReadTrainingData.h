@@ -17,7 +17,7 @@ Bool getOneLineFromFile(FILE *f, char **lineData);
 /*next call -> *lineData = "4 5 6"*/
 /*return TRUE: no error, FALSE: error occurred*/
 
-int** ReadTrainingData(char *fileName, size_t *numData, size_t *numVal);
+int** readTrainingData(char *fileName, size_t *numData, size_t *numVal);
 /*example: fileName = "data.txt, data.txt:1 2 3\n4 5 6 -> *numData = 2, *numVal = 3"*/
 /*return data[0] = {1, 2, 3}, data[1] = {4, 5, 6}*/
 
