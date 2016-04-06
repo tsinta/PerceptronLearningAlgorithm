@@ -1,4 +1,4 @@
-##Using perceptron learning algorithm to train any linear classfied input file
+##Using perceptron learning algorithm to train any linear separable input file
 
 ####Build Command:
 C:\...\> gcc -Wall -ansi -static -o runPLA.exe *.c
