@@ -60,15 +60,34 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
     return countAdjust;
 }
 
+size_t* resetWrongDataIdx(size_t **wrongDataIdx, size_t numData)
+{
+    /*out: array of wrong data idx*/
+    if (*wrongDataIdx == NULL)
+        *wrongDataIdx = (size_t*)malloc(sizeof(size_t) * numData);    
+    if (*wrongDataIdx == NULL) {
+        fprintf(stderr, "Failed to malloc in resetBadDataIdx\n");
+        return NULL;
+    }
+    
+    size_t i;
+    
+    for (i = 0; i < numData; ++i)
+        (*wrongDataIdx)[i] = i;
+    return *wrongDataIdx;
+}
+
 size_t
 trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal
     , size_t iter, Bool isStrict, Bool showDetail)
 {
+    /*iter: Iteration times*/
     /*out: adjust times of weight*/
+    /*static size_t *wrongDataIdx = NULL;*/   /*idx which check result is wrong*/
+    /*static size_t countUp = 0;*/          /*if up to numData, end the iteration*/
     size_t idx;
     size_t countAdjust = 0;
     
-    /*iter: Iteration times*/
     while (iter > 0) {
         idx = (size_t)(rand() % numData);
         if (oneTraining(pData[idx], wt, numPLAVal, isStrict, showDetail))
