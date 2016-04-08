@@ -15,7 +15,7 @@ initPLA(char *fileName, int ***data, PLAData **pData
     size_t numVal;
     *data = readTrainingData(fileName, numData, &numVal);
     
-    if (*data == NULL || numData == 0 || numVal <= 2)
+    if (*data == NULL || numData == 0 || numVal < 2)
         return FALSE;
     *pData = convertToPLAData(*data, *numData, numVal);
     *numPLAVal = numVal - 1;
@@ -102,7 +102,7 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
         }
         else if (++countUp < numData) {
             memmove(g_wrongDataIdx + idx, g_wrongDataIdx + idx + 1
-                , sizeof(size_t) * (numData - countUp - idx));
+                , sizeof(size_t) * (numData - countUp - idx));  /*remove correct data idx*/
         }
         else
             break;
