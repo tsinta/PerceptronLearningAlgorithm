@@ -25,7 +25,8 @@ initPLA(char *fileName, PLAData **pData
     return TRUE;
 }
 
-Bool oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, Bool isStrict, Bool showDetail)
+static Bool
+oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, Bool isStrict, Bool showDetail)
 {
     /*out: Has wt been changed?*/
     if (checkPLAData(pData, *wt, numPLAVal, isStrict)
@@ -66,7 +67,7 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData
 
 static size_t *g_wrongDataIdx = NULL;   /*idx of check result is wrong*/
 
-size_t* resetWrongDataIdx(size_t numData)
+static size_t* resetWrongDataIdx(size_t numData)
 {
     /*out: array of wrong data idx*/
     if (g_wrongDataIdx == NULL)

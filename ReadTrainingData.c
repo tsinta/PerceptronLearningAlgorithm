@@ -9,7 +9,7 @@
 #define MAXVAL 11
 #define MAXCHAR 50
 
-void* revisedRealloc(void **ptr, size_t sz, char *funcName)
+static void* revisedRealloc(void **ptr, size_t sz, char *funcName)
 {
     void *bufptr = realloc(*ptr, sz);
     if (bufptr == NULL) {
@@ -22,7 +22,7 @@ void* revisedRealloc(void **ptr, size_t sz, char *funcName)
     return bufptr;
 }
 
-void* revisedMalloc(size_t sz, char *funcName)
+static void* revisedMalloc(size_t sz, char *funcName)
 {
     void *bufptr = malloc(sz);
     if (bufptr == NULL)
@@ -116,7 +116,7 @@ void closeTrainingData(int **data, size_t numData)
     free(data);
 }
 
-Bool allocEachData(int **iLineData, size_t numData, size_t numVal, Bool *isNeedReuse)
+static Bool allocEachData(int **iLineData, size_t numData, size_t numVal, Bool *isNeedReuse)
 {
     /*out: Is it no error occur*/
     if (numData != 0 && !*isNeedReuse) {
@@ -131,7 +131,7 @@ Bool allocEachData(int **iLineData, size_t numData, size_t numVal, Bool *isNeedR
     return TRUE;
 }
 
-Bool
+static Bool
 checkNumVal(int **data, char *lineData, size_t *numData
     , size_t *numVal, size_t nowNumVal, Bool *isNeedReuse)
 {
@@ -152,7 +152,7 @@ checkNumVal(int **data, char *lineData, size_t *numData
     return TRUE;
 }
 
-int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
+static int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
 {
     /*out: The int data in f*/
     int **data = (int**)revisedMalloc(sizeof(int*) * MAXDATA, "assignDataToVar");

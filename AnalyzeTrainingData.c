@@ -50,7 +50,7 @@ Bool checkPLAData(PLAData pData, Weight wt, size_t numPLAVal, Bool isStrict)
     for (i = 0; i < numPLAVal; ++i)
         innerProduct += pData.val[i] * wt.w[i];
     if (innerProduct == wt.threshold)
-        return isStrict ? 1 : 0;
+        return isStrict ? TRUE : FALSE;
     return (((innerProduct > wt.threshold) ? GOOD : BAD) != pData.isGood) ? TRUE : FALSE;
 }
 
