@@ -28,7 +28,7 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
 size_t
 showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal, Bool isStrict);
 
-void closePLA(int **data, Weight wt, size_t numData);
+void closePLA(int **data, PLAData *pData, Weight wt, size_t numData);
 /*Must add to the end*/
 
 #endif

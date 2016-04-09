@@ -130,6 +130,12 @@ void showWeight(Weight wt, size_t numPLAVal)
     printf(" < %d -> -\n", wt.threshold);
 }
 
+void closePLAData(PLAData *pData)
+{
+    if (pData != NULL)
+        free(pData);
+}
+
 void closeWeight(Weight wt)
 {
     if (wt.w != NULL) {
@@ -146,7 +152,7 @@ int main()
     char fileName[100];
     scanf("%s", fileName);
     size_t numData = 0, numVal = 0;
-    int **data = ReadTrainingData(fileName, &numData, &numVal);
+    int **data = readTrainingData(fileName, &numData, &numVal);
     PLAData *pData = convertToPLAData(data, numData, numVal);
     size_t i,j;
     Bool isStrict = 0;
@@ -174,6 +180,7 @@ int main()
         size_t nc = countNumCorrect(pData, wt, numData, numPLAVal, isStrict);
         printf("correct: %u / %u, %g%%\n", (unsigned int)nc
             , (unsigned int)numData, (double)(nc * 100) / (double)numData);
+        closePLAData(pData);
         closeWeight(wt);
     }
     if (data != NULL)

@@ -43,6 +43,8 @@ void showPLAData(PLAData pData, size_t numPLAVal);
 
 void showWeight(Weight wt, size_t numPLAVal);
 
+void closePLAData(PLAData *pData);
+
 void closeWeight(Weight wt);
 
 #endif

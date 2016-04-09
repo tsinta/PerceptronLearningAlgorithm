@@ -7,28 +7,39 @@
 #include "AnalyzeTrainingData.h"
 #include "PerceptronLearningAlgorithm.h"
 
+void
+setPLACommand(int argc, char *argv[], char **fileName, Bool *isStrict
+    , Bool *randomTraining, Bool *showDetail)
+{
+    *fileName = argv[1];
+    
+    size_t i;
+    
+     for (i = 2; i < argc; ++i) {
+        if (strcmp(argv[i], "strict") == 0)
+            *isStrict = TRUE;
+        else if (strcmp(argv[i], "random") == 0) {
+            *randomTraining = TRUE;
+            srand(time(NULL));
+        }
+        else if (strcmp(argv[i], "show") == 0)
+            *showDetail = TRUE;
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    size_t i;
-    Bool isStrict = FALSE;
-    Bool randomTraining = FALSE;
-    Bool showDetail = FALSE;
-    
     if (argc <= 1) {
         puts("No training data");
         return 0;
     }
-    char *fileName = argv[1];
-    for (i = 2; i < argc; ++i) {
-        if (strcmp(argv[i], "strict") == 0)
-            isStrict = TRUE;
-        else if (strcmp(argv[i], "random") == 0) {
-            randomTraining = TRUE;
-            srand(time(NULL));
-        }
-        else if (strcmp(argv[i], "show") == 0)
-            showDetail = TRUE;
-    }
+    
+    char *fileName = NULL;
+    Bool isStrict = FALSE;
+    Bool randomTraining = FALSE;
+    Bool showDetail = FALSE;
+
+    setPLACommand(argc, argv, &fileName, &isStrict, &randomTraining, &showDetail);
     
     int **data = NULL;
     PLAData *pData = NULL;
@@ -57,6 +68,6 @@ int main(int argc, char *argv[])
         if (showTrainingResult(pData, wt, numData, numPLAVal, isStrict) == numData)
             break;
     }
-    closePLA(data, wt, numData);
+    closePLA(data, pData, wt, numData);
     return 0;
 }

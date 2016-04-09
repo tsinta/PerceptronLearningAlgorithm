@@ -123,9 +123,10 @@ showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal, 
     return nc;
 }
 
-void closePLA(int **data, Weight wt, size_t numData)
+void closePLA(int **data, PLAData *pData, Weight wt, size_t numData)
 {
     closeTrainingData(data, numData);
+    closePLAData(pData);
     closeWeight(wt);
     if (g_wrongDataIdx != NULL) {
         free(g_wrongDataIdx);
@@ -156,7 +157,7 @@ int main()
         if (showTrainingResult(pData, wt, numData, numPLAVal, isStrict) == numData)
             break;
     }
-    closePLA(data, wt, numData);
+    closePLA(data, pData, wt, numData);
     return 0;
 }
 */
