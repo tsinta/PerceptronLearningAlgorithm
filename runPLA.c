@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         return 0;
     }
     
-    size_t startIdx = 0, iter = 0, countAdjust = 0;
+    size_t iter = 0, countAdjust = 0;
     
     while (1) {
         printf("Enter iteration times (or ctrl+Z to exit)= ");
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
             ? trainingByRandomSequence(pData, &wt, numData
                 , numPLAVal, iter, isStrict, showDetail)
             : trainingByNormalSequence(pData, &wt, numData
-                , numPLAVal, &startIdx, iter, isStrict, showDetail);
+                , numPLAVal, iter, isStrict, showDetail);
         
         puts("*************************");
         printf("total adjust times = %u\n", (unsigned int)countAdjust);

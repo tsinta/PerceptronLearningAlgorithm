@@ -41,18 +41,19 @@ Bool oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, Bool isStrict, Boo
 }
 
 size_t
-trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal
-    , size_t *startIdx, size_t iter, Bool isStrict, Bool showDetail)
+trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData
+    , size_t numPLAVal, size_t iter, Bool isStrict, Bool showDetail)
 {
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
+    static size_t startIdx = 0; /*start from pData[0]*/
     static size_t countUp = 0;  /*if up to numData, end the iteration*/
     size_t countAdjust = 0;     /*count # of data used to adjust weight*/
     
     while (iter > 0) {
-        if (*startIdx == numData)
-            *startIdx = 0;
-        if (oneTraining(pData[(*startIdx)++], wt, numPLAVal, isStrict, showDetail)) {
+        if (startIdx == numData)
+            startIdx = 0;
+        if (oneTraining(pData[startIdx++], wt, numPLAVal, isStrict, showDetail)) {
             countUp = 0;
             ++countAdjust;
         }
@@ -83,8 +84,8 @@ size_t* resetWrongDataIdx(size_t numData)
 }
 
 size_t
-trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal
-    , size_t iter, Bool isStrict, Bool showDetail)
+trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData
+    , size_t numPLAVal, size_t iter, Bool isStrict, Bool showDetail)
 {
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
@@ -147,10 +148,10 @@ int main()
     Bool showDetail = TRUE;
     scanf("%s", fileName);
     initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
-    size_t startIdx = 0, iter = 0;
+    size_t iter = 0;
     while (scanf("%u", (unsigned int*)&iter) != EOF) {
         size_t ca = trainingByNormalSequence(pData, &wt, numData
-            , numPLAVal, &startIdx, iter, isStrict, showDetail);*/
+            , numPLAVal, iter, isStrict, showDetail);*/
         /*size_t ca = trainingByRandomSequence(pData, &wt
             , numData, numPLAVal, iter, isStrict, showDetail);*/
 /*        puts("*************************");
