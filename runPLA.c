@@ -35,19 +35,16 @@ int main(int argc, char *argv[])
     }
     
     char *fileName = NULL;
-    Bool isStrict = FALSE;
-    Bool randomTraining = FALSE;
-    Bool showDetail = FALSE;
+    Bool isStrict = FALSE, randomTraining = FALSE, showDetail = FALSE;
 
     setPLACommand(argc, argv, &fileName, &isStrict, &randomTraining, &showDetail);
     
-    int **data = NULL;
     PLAData *pData = NULL;
     Weight wt;
     size_t numData, numPLAVal;
     
-    if (!initPLA(fileName, &data, &pData, &wt, &numData, &numPLAVal)) {
-        puts("Can't open the file");
+    if (!initPLA(fileName, &pData, &wt, &numData, &numPLAVal)) {
+        printf("Can't open the file \"%s\"", fileName);
         return 0;
     }
     
@@ -68,6 +65,6 @@ int main(int argc, char *argv[])
         if (showTrainingResult(pData, wt, numData, numPLAVal, isStrict) == numData)
             break;
     }
-    closePLA(data, pData, wt, numData);
+    closePLA(pData, wt, numData);
     return 0;
 }

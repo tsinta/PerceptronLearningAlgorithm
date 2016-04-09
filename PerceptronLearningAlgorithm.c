@@ -7,17 +7,19 @@
 #include "AnalyzeTrainingData.h"
 #include "PerceptronLearningAlgorithm.h"
 
+static int **g_data = NULL;
+
 Bool
-initPLA(char *fileName, int ***data, PLAData **pData
+initPLA(char *fileName, PLAData **pData
     , Weight *wt, size_t *numData, size_t *numPLAVal)
 {
     /*out: Can the file do PLA?*/
     size_t numVal;
-    *data = readTrainingData(fileName, numData, &numVal);
     
-    if (*data == NULL || numData == 0 || numVal < 2)
+    g_data = readTrainingData(fileName, numData, &numVal);
+    if (g_data == NULL || numData == 0 || numVal < 2)
         return FALSE;
-    *pData = convertToPLAData(*data, *numData, numVal);
+    *pData = convertToPLAData(g_data, *numData, numVal);
     *numPLAVal = numVal - 1;
     *wt = genInitWeight(*numPLAVal);
     return TRUE;
@@ -123,9 +125,9 @@ showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal, 
     return nc;
 }
 
-void closePLA(int **data, PLAData *pData, Weight wt, size_t numData)
+void closePLA(PLAData *pData, Weight wt, size_t numData)
 {
-    closeTrainingData(data, numData);
+    closeTrainingData(g_data, numData);
     closePLAData(pData);
     closeWeight(wt);
     if (g_wrongDataIdx != NULL) {
@@ -138,14 +140,13 @@ void closePLA(int **data, PLAData *pData, Weight wt, size_t numData)
 int main()
 {
     char fileName[100];
-    int **data = NULL;
     PLAData *pData = NULL;
     Weight wt;
     size_t numData, numPLAVal;
     Bool isStrict = TRUE;
     Bool showDetail = TRUE;
     scanf("%s", fileName);
-    initPLA(fileName, &data, &pData, &wt, &numData, &numPLAVal);
+    initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
     size_t startIdx = 0, iter = 0;
     while (scanf("%u", (unsigned int*)&iter) != EOF) {
         size_t ca = trainingByNormalSequence(pData, &wt, numData
@@ -157,7 +158,7 @@ int main()
         if (showTrainingResult(pData, wt, numData, numPLAVal, isStrict) == numData)
             break;
     }
-    closePLA(data, pData, wt, numData);
+    closePLA(pData, wt, numData);
     return 0;
 }
 */

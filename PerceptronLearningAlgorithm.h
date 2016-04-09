@@ -9,7 +9,7 @@ typedef enum { FALSE, TRUE } Bool;
 #endif
 
 Bool
-initPLA(char *fileName, int ***data, PLAData **pData
+initPLA(char *fileName, PLAData **pData
     , Weight *wt, size_t *numData, size_t *numPLAVal);
 /*example: fileName = "data.txt", data.txt->"2 1 : 1\n1 0 : -1\n..."*/
 /*return: Can the file do PLA?*/
@@ -28,7 +28,7 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
 size_t
 showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal, Bool isStrict);
 
-void closePLA(int **data, PLAData *pData, Weight wt, size_t numData);
+void closePLA(PLAData *pData, Weight wt, size_t numData);
 /*Must add to the end*/
 
 #endif
