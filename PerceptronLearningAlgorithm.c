@@ -9,9 +9,7 @@
 
 static int **g_data = NULL;
 
-Bool
-initPLA(char *fileName, PLAData **pData
-    , Weight *wt, size_t *numData, size_t *numPLAVal)
+Bool initPLA(char *fileName, PLAData **pData, Weight *wt, size_t *numData, size_t *numPLAVal)
 {
     /*out: Can the file do PLA?*/
     size_t numVal;
@@ -32,12 +30,10 @@ void setShowDetail(Bool showDetail)
     g_showDetail = showDetail;
 }
 
-static Bool
-oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
+static Bool oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
 {
     /*out: Has wt been changed?*/
-    if (checkPLAData(pData, *wt, numPLAVal)
-        || checkIfWeightIsZero(*wt, numPLAVal) == 0) {
+    if (checkPLAData(pData, *wt, numPLAVal) || checkIfWeightIsZero(*wt, numPLAVal) == 0) {
         adjustWeight(pData, wt, numPLAVal);
         if (g_showDetail) {
             showPLAData(pData, numPLAVal);
@@ -141,8 +137,7 @@ void setIsRandomTraining(Bool isRandomTraining)
     trainingBySequence = isRandomTraining ? trainingByRandomSequence : trainingByNormalSequence;
 }
 
-size_t
-showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal)
+size_t showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal)
 {
     /*out: # of correct by training*/
     size_t nc = countNumCorrect(pData, wt, numData, numPLAVal);

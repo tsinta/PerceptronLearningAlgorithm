@@ -6,8 +6,7 @@
 #include <time.h>
 #include "PerceptronLearningAlgorithm.h"
 
-void
-setPLACommand(int argc, char *argv[], char **fileName)
+void setPLACommand(int argc, char *argv[], char **fileName)
 {
     *fileName = argv[1];
     

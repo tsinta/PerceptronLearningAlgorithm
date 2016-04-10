@@ -29,9 +29,7 @@ typedef struct {
 } Weight;
 #endif
 
-Bool
-initPLA(char *fileName, PLAData **pData
-    , Weight *wt, size_t *numData, size_t *numPLAVal);
+Bool initPLA(char *fileName, PLAData **pData, Weight *wt, size_t *numData, size_t *numPLAVal);
 /*example: fileName = "data.txt", data.txt->"2 1 : 1\n1 0 : -1\n..."*/
 /*return: Can the file do PLA?*/
 
@@ -51,8 +49,7 @@ size_t
 /*if isRandomTraining == TRUE, Training iter times from *pData[*startIdx]*/
 /*if isRandomTraining == FALSE, Training iter times by random*/
 
-size_t
-showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal);
+size_t showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal);
 
 void closePLA(PLAData *pData, Weight wt, size_t numData);
 /*Must add to the end*/
