@@ -41,7 +41,14 @@ Weight genInitWeight(size_t numPLAVal)
     return wt;
 }
 
-Bool checkPLAData(PLAData pData, Weight wt, size_t numPLAVal, Bool isStrict)
+static Bool g_isStrict = FALSE;
+
+void setIsStrict(Bool isStrict)
+{
+    g_isStrict = isStrict;
+}
+
+Bool checkPLAData(PLAData pData, Weight wt, size_t numPLAVal)
 {
     /*return FALSE->don't need adjust, return TRUE->need adjust*/
     size_t i;   /*idx of pData.val*/
@@ -50,7 +57,7 @@ Bool checkPLAData(PLAData pData, Weight wt, size_t numPLAVal, Bool isStrict)
     for (i = 0; i < numPLAVal; ++i)
         innerProduct += pData.val[i] * wt.w[i];
     if (innerProduct == wt.threshold)
-        return isStrict ? TRUE : FALSE;
+        return g_isStrict ? TRUE : FALSE;
     return (((innerProduct > wt.threshold) ? GOOD : BAD) != pData.isGood) ? TRUE : FALSE;
 }
 
@@ -76,7 +83,7 @@ int checkIfWeightIsZero(Weight wt, size_t numPLAVal)
     return wt.threshold;
 }
 
-size_t countNumCorrect(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal, Bool isStrict)
+size_t countNumCorrect(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal)
 {
     /*out: # of training result is correct*/
     if (checkIfWeightIsZero(wt, numPLAVal) == 0)
@@ -86,7 +93,7 @@ size_t countNumCorrect(PLAData *pData, Weight wt, size_t numData, size_t numPLAV
     size_t numCorrect = 0;
     
     for (i = 0; i < numData; ++i) {
-        if (!checkPLAData(pData[i], wt, numPLAVal, isStrict))
+        if (!checkPLAData(pData[i], wt, numPLAVal))
             ++numCorrect;
     }
     return numCorrect;
@@ -155,7 +162,7 @@ int main()
     int **data = readTrainingData(fileName, &numData, &numVal);
     PLAData *pData = convertToPLAData(data, numData, numVal);
     size_t i,j;
-    Bool isStrict = 0;
+    setIsStrict(TRUE);
     for (i = 0; i < numData; ++i) {
         for (j = 0; j < numVal - 1; ++j)
             printf("%d , ", pData[i].val[j]);
@@ -171,13 +178,13 @@ int main()
             if (idx >= numData)
                 break;
             Bool check = 0;
-            printf("check = %d\n", (check = checkPLAData(pData[idx], wt, numPLAVal, isStrict)));
+            printf("check = %d\n", (check = checkPLAData(pData[idx], wt, numPLAVal)));
             if (check || (checkIfWeightIsZero(wt, numPLAVal) == 0)) {
                 showPLAData(pData[idx], numPLAVal);
                 adjustWeight(pData[idx], &wt, numPLAVal);
             }
         }
-        size_t nc = countNumCorrect(pData, wt, numData, numPLAVal, isStrict);
+        size_t nc = countNumCorrect(pData, wt, numData, numPLAVal);
         printf("correct: %u / %u, %g%%\n", (unsigned int)nc
             , (unsigned int)numData, (double)(nc * 100) / (double)numData);
         closePLAData(pData);

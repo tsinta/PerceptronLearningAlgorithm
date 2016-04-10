@@ -4,12 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "AnalyzeTrainingData.h"
 #include "PerceptronLearningAlgorithm.h"
 
 void
-setPLACommand(int argc, char *argv[], char **fileName, Bool *isStrict
-    , Bool *randomTraining, Bool *showDetail)
+setPLACommand(int argc, char *argv[], char **fileName, Bool *randomTraining)
 {
     *fileName = argv[1];
     
@@ -17,13 +15,13 @@ setPLACommand(int argc, char *argv[], char **fileName, Bool *isStrict
     
      for (i = 2; i < argc; ++i) {
         if (strcmp(argv[i], "strict") == 0)
-            *isStrict = TRUE;
+            setIsStrict(TRUE);
         else if (strcmp(argv[i], "random") == 0) {
             *randomTraining = TRUE;
             srand(time(NULL));
         }
         else if (strcmp(argv[i], "show") == 0)
-            *showDetail = TRUE;
+            setShowDetail(TRUE);
     }
 }
 
@@ -35,9 +33,9 @@ int main(int argc, char *argv[])
     }
     
     char *fileName = NULL;
-    Bool isStrict = FALSE, randomTraining = FALSE, showDetail = FALSE;
+    Bool randomTraining = FALSE;
 
-    setPLACommand(argc, argv, &fileName, &isStrict, &randomTraining, &showDetail);
+    setPLACommand(argc, argv, &fileName, &randomTraining);
     
     PLAData *pData = NULL;
     Weight wt;
@@ -56,13 +54,13 @@ int main(int argc, char *argv[])
             break;
         countAdjust += randomTraining
             ? trainingByRandomSequence(pData, &wt, numData
-                , numPLAVal, iter, isStrict, showDetail)
+                , numPLAVal, iter)
             : trainingByNormalSequence(pData, &wt, numData
-                , numPLAVal, iter, isStrict, showDetail);
+                , numPLAVal, iter);
         
         puts("*************************");
         printf("total adjust times = %u\n", (unsigned int)countAdjust);
-        if (showTrainingResult(pData, wt, numData, numPLAVal, isStrict) == numData)
+        if (showTrainingResult(pData, wt, numData, numPLAVal) == numData)
             break;
     }
     closePLA(pData, wt, numData);

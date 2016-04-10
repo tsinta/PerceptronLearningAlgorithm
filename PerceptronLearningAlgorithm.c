@@ -25,14 +25,21 @@ initPLA(char *fileName, PLAData **pData
     return TRUE;
 }
 
+static Bool g_showDetail;
+
+void setShowDetail(Bool showDetail)
+{
+    g_showDetail = showDetail;
+}
+
 static Bool
-oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, Bool isStrict, Bool showDetail)
+oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
 {
     /*out: Has wt been changed?*/
-    if (checkPLAData(pData, *wt, numPLAVal, isStrict)
+    if (checkPLAData(pData, *wt, numPLAVal)
         || checkIfWeightIsZero(*wt, numPLAVal) == 0) {
         adjustWeight(pData, wt, numPLAVal);
-        if (showDetail) {
+        if (g_showDetail) {
             showPLAData(pData, numPLAVal);
             showWeight(*wt, numPLAVal);
         }
@@ -42,8 +49,7 @@ oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, Bool isStrict, Bool sho
 }
 
 size_t
-trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData
-    , size_t numPLAVal, size_t iter, Bool isStrict, Bool showDetail)
+trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter)
 {
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
@@ -54,7 +60,7 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData
     while (iter > 0) {
         if (startIdx == numData)
             startIdx = 0;
-        if (oneTraining(pData[startIdx++], wt, numPLAVal, isStrict, showDetail)) {
+        if (oneTraining(pData[startIdx++], wt, numPLAVal)) {
             countUp = 0;
             ++countAdjust;
         }
@@ -85,8 +91,7 @@ static size_t* resetWrongDataIdx(size_t numData)
 }
 
 size_t
-trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData
-    , size_t numPLAVal, size_t iter, Bool isStrict, Bool showDetail)
+trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter)
 {
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
@@ -98,7 +103,7 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData
         return 0;
     while (iter > 0) {
         idx = (size_t)(rand() % (numData - countUp));
-        if (oneTraining(pData[g_wrongDataIdx[idx]], wt, numPLAVal, isStrict, showDetail)) {
+        if (oneTraining(pData[g_wrongDataIdx[idx]], wt, numPLAVal)) {
             countUp = 0;
             if (resetWrongDataIdx(numData) == NULL)
                 return 0;
@@ -116,10 +121,10 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData
 }
 
 size_t
-showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal, Bool isStrict)
+showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal)
 {
     /*out: # of correct by training*/
-    size_t nc = countNumCorrect(pData, wt, numData, numPLAVal, isStrict);
+    size_t nc = countNumCorrect(pData, wt, numData, numPLAVal);
     
     showWeight(wt, numPLAVal);
     printf("correct rate: %u / %u, %g%%\n", (unsigned int)nc
@@ -145,19 +150,19 @@ int main()
     PLAData *pData = NULL;
     Weight wt;
     size_t numData, numPLAVal;
-    Bool isStrict = TRUE;
-    Bool showDetail = TRUE;
+    setIsStrict(TRUE);
+    setShowDetail(TRUE);
     scanf("%s", fileName);
     initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
     size_t iter = 0;
     while (scanf("%u", (unsigned int*)&iter) != EOF) {
         size_t ca = trainingByNormalSequence(pData, &wt, numData
-            , numPLAVal, iter, isStrict, showDetail);*/
+            , numPLAVal, iter);*/
         /*size_t ca = trainingByRandomSequence(pData, &wt
-            , numData, numPLAVal, iter, isStrict, showDetail);*/
+            , numData, numPLAVal, iter);*/
 /*        puts("*************************");
         printf("adjust times = %u\n", (unsigned int)ca);
-        if (showTrainingResult(pData, wt, numData, numPLAVal, isStrict) == numData)
+        if (showTrainingResult(pData, wt, numData, numPLAVal) == numData)
             break;
     }
     closePLA(pData, wt, numData);
