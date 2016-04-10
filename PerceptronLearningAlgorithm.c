@@ -48,6 +48,13 @@ oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
     return FALSE;
 }
 
+static Bool g_isStopByAdjustTimes = FALSE;
+
+void setIsStopByAdjustTimes(Bool isStopByAdjustTimes)
+{
+    g_isStopByAdjustTimes = isStopByAdjustTimes;
+}
+
 static size_t
 trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter)
 {
@@ -63,10 +70,13 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
         if (oneTraining(pData[startIdx++], wt, numPLAVal)) {
             countUp = 0;
             ++countAdjust;
+            if (g_isStopByAdjustTimes)
+                --iter;
         }
         else if (++countUp == numData)
             break;
-        --iter;
+        if (!g_isStopByAdjustTimes)
+            --iter;
     }
     return countAdjust;
 }
@@ -107,6 +117,8 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
             if (resetWrongDataIdx(numData) == NULL)
                 return 0;
             ++countAdjust;
+            if (g_isStopByAdjustTimes)
+                --iter;
         }
         else if (++countUp < numData) {
             memmove(g_wrongDataIdx + idx, g_wrongDataIdx + idx + 1
@@ -114,7 +126,8 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
         }
         else
             break;
-        --iter;
+        if (!g_isStopByAdjustTimes)
+            --iter;
     }
     return countAdjust;
 }
@@ -161,6 +174,7 @@ int main()
     setIsStrict(TRUE);
     setShowDetail(TRUE);
     setIsRandomTraining(TRUE);
+    setIsStopByAdjustTimes(TRUE);
     scanf("%s", fileName);
     initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
     size_t iter = 0;

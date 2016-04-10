@@ -22,6 +22,8 @@ setPLACommand(int argc, char *argv[], char **fileName)
         }
         else if (strcmp(argv[i], "show") == 0)
             setShowDetail(TRUE);
+        else if (strcmp(argv[i], "adjust") == 0)
+            setIsStopByAdjustTimes(TRUE);
     }
 }
 

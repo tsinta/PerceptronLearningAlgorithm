@@ -40,6 +40,10 @@ void setShowDetail(Bool showDetail);
 extern void setIsStrict(Bool isStrict);
 /*If isStrict == TRUE, wt will be adjusted even if wt*val == threshold*/
 
+void setIsStopByAdjustTimes(Bool isStopByAdjustTimes);
+/*if isStopByAdjustTimes == TRUE, one iterations == one adjust*/
+/*if isStopByAdjustTimes == FALSE, one iterations == one data*/
+
 void setIsRandomTraining(Bool isRandomTraining);
 
 size_t
