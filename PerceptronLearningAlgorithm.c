@@ -48,7 +48,7 @@ oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
     return FALSE;
 }
 
-size_t
+static size_t
 trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter)
 {
     /*iter: Iteration times*/
@@ -90,19 +90,18 @@ static size_t* resetWrongDataIdx(size_t numData)
     return g_wrongDataIdx;
 }
 
-size_t
+static size_t
 trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter)
 {
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
     static size_t countUp = 0;  /*if up to numData, end the iteration*/
     size_t countAdjust = 0;     /*count # of data used to adjust weight*/
-    size_t idx;
     
     if (g_wrongDataIdx == NULL && resetWrongDataIdx(numData) == NULL)
         return 0;
     while (iter > 0) {
-        idx = (size_t)(rand() % (numData - countUp));
+        size_t idx = (size_t)(rand() % (numData - countUp));
         if (oneTraining(pData[g_wrongDataIdx[idx]], wt, numPLAVal)) {
             countUp = 0;
             if (resetWrongDataIdx(numData) == NULL)
@@ -118,6 +117,15 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
         --iter;
     }
     return countAdjust;
+}
+
+size_t
+(*trainingBySequence)(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter)
+    = trainingByNormalSequence;
+
+void setIsRandomTraining(Bool isRandomTraining)
+{
+    trainingBySequence = isRandomTraining ? trainingByRandomSequence : trainingByNormalSequence;
 }
 
 size_t
@@ -152,14 +160,14 @@ int main()
     size_t numData, numPLAVal;
     setIsStrict(TRUE);
     setShowDetail(TRUE);
+    setIsRandomTraining(TRUE);
     scanf("%s", fileName);
     initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
     size_t iter = 0;
     while (scanf("%u", (unsigned int*)&iter) != EOF) {
-        size_t ca = trainingByNormalSequence(pData, &wt, numData
-            , numPLAVal, iter);*/
-        /*size_t ca = trainingByRandomSequence(pData, &wt
-            , numData, numPLAVal, iter);*/
+        size_t ca = trainingBySequence(pData, &wt, numData, numPLAVal, iter);*/
+        /*size_t ca = trainingByNormalSequence(pData, &wt, numData, numPLAVal, iter);*/
+        /*size_t ca = trainingByRandomSequence(pData, &wt, numData, numPLAVal, iter);*/
 /*        puts("*************************");
         printf("adjust times = %u\n", (unsigned int)ca);
         if (showTrainingResult(pData, wt, numData, numPLAVal) == numData)

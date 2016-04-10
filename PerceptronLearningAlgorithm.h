@@ -38,17 +38,14 @@ initPLA(char *fileName, PLAData **pData
 void setShowDetail(Bool showDetail);
 
 extern void setIsStrict(Bool isStrict);
-
-size_t
-trainingByNormalSequence(PLAData *pData, Weight *wt
-    , size_t numData, size_t numPLAVal, size_t iter);
-/*Training iter times from *pData[*startIdx]*/
 /*If isStrict == TRUE, wt will be adjusted even if wt*val == threshold*/
 
+void setIsRandomTraining(Bool isRandomTraining);
+
 size_t
-trainingByRandomSequence(PLAData *pData, Weight *wt
-    , size_t numData, size_t numPLAVal, size_t iter);
-/*Training iter times by random*/
+(*trainingBySequence)(PLAData *pData, Weight *wt, size_t numData, size_t numPLAVal, size_t iter);
+/*if isRandomTraining == TRUE, Training iter times from *pData[*startIdx]*/
+/*if isRandomTraining == FALSE, Training iter times by random*/
 
 size_t
 showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal);

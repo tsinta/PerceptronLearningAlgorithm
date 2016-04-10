@@ -7,7 +7,7 @@
 #include "PerceptronLearningAlgorithm.h"
 
 void
-setPLACommand(int argc, char *argv[], char **fileName, Bool *randomTraining)
+setPLACommand(int argc, char *argv[], char **fileName)
 {
     *fileName = argv[1];
     
@@ -17,7 +17,7 @@ setPLACommand(int argc, char *argv[], char **fileName, Bool *randomTraining)
         if (strcmp(argv[i], "strict") == 0)
             setIsStrict(TRUE);
         else if (strcmp(argv[i], "random") == 0) {
-            *randomTraining = TRUE;
+            setIsRandomTraining(TRUE);
             srand(time(NULL));
         }
         else if (strcmp(argv[i], "show") == 0)
@@ -33,9 +33,8 @@ int main(int argc, char *argv[])
     }
     
     char *fileName = NULL;
-    Bool randomTraining = FALSE;
 
-    setPLACommand(argc, argv, &fileName, &randomTraining);
+    setPLACommand(argc, argv, &fileName);
     
     PLAData *pData = NULL;
     Weight wt;
@@ -52,12 +51,7 @@ int main(int argc, char *argv[])
         printf("Enter iteration times (or ctrl+Z to exit)= ");
         if (scanf("%u", (unsigned int*)&iter) == EOF)
             break;
-        countAdjust += randomTraining
-            ? trainingByRandomSequence(pData, &wt, numData
-                , numPLAVal, iter)
-            : trainingByNormalSequence(pData, &wt, numData
-                , numPLAVal, iter);
-        
+        countAdjust += trainingBySequence(pData, &wt, numData, numPLAVal, iter);
         puts("*************************");
         printf("total adjust times = %u\n", (unsigned int)countAdjust);
         if (showTrainingResult(pData, wt, numData, numPLAVal) == numData)
