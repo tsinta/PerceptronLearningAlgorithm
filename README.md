@@ -9,7 +9,7 @@ C:\...\>  runPLA.exe data.txt
 
 data.txt <-file name
 
-#####Some key words can be added behind the file name:
+#####Some keywords can be added behind the file name:
 
 random: training by random sequence
 
@@ -18,3 +18,10 @@ strict: strict training (If isStrict == TRUE, wt will be adjusted even if wt*val
 show: show the data which use to adjust weight
 
 adjust: one iteration is equal to one adjust time, not one data
+
+#####For example:
+C:\...\>  runPLA.exe data.txt random strict show adjust
+
+C:\...\>  runPLA.exe data2.txt random show adjust
+
+C:\...\>  runPLA.exe data3.txt strict show adjust
