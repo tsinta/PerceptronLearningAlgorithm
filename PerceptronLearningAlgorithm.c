@@ -23,14 +23,14 @@ Bool initPLA(char *fileName, PLAData **pData, Weight *wt, size_t *numData, size_
     return TRUE;
 }
 
-static Bool g_showDetail;
+static Bool g_showDetail = FALSE;
 
 void setShowDetail(Bool showDetail)
 {
     g_showDetail = showDetail;
 }
 
-static Bool g_isPocket;
+static Bool g_isPocket = FALSE;
 
 void setIsPocket(Bool isPocket)
 {
