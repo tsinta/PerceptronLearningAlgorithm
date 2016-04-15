@@ -25,3 +25,8 @@ C:\...\>  runPLA.exe data.txt random strict show adjust
 C:\...\>  runPLA.exe data2.txt random show adjust
 
 C:\...\>  runPLA.exe data3.txt strict show adjust
+
+#####Code hierarchy:
+1. PerceptronLearningAlgorithm <- ReadTrainingData, AnalyzeTrainingData
+
+2. runPLA <- PerceptronLearningAlgorithm
