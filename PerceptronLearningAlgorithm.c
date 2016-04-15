@@ -145,7 +145,7 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
     static size_t countUp = 0;  /*if up to numData, end the iteration*/
     size_t countAdjust = 0;     /*count # of data used to adjust wt*/
     
-    if ((g_wrongDataIdx == NULL && resetWrongDataIdx(numData) == NULL))
+    if (g_wrongDataIdx == NULL && resetWrongDataIdx(numData) == NULL)
         return 0;
     while (iter > 0) {
         size_t idx = (size_t)(rand() % (numData - countUp));
