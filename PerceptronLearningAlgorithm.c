@@ -8,6 +8,13 @@
 #include "PerceptronLearningAlgorithm.h"
 
 static int **g_data = NULL;
+static Weight bufWt;    /*used for pocket*/
+static Bool g_isPocket = FALSE;
+
+void setIsPocket(Bool isPocket)
+{
+    g_isPocket = isPocket;
+}
 
 Bool initPLA(char *fileName, PLAData **pData, Weight *wt, size_t *numData, size_t *numPLAVal)
 {
@@ -20,6 +27,8 @@ Bool initPLA(char *fileName, PLAData **pData, Weight *wt, size_t *numData, size_
     *pData = convertToPLAData(g_data, *numData, numVal);
     *numPLAVal = numVal - 1;
     *wt = genInitWeight(*numPLAVal);
+    if (g_isPocket)
+        bufWt = genInitWeight(*numPLAVal);
     return TRUE;
 }
 
@@ -30,21 +39,38 @@ void setShowDetail(Bool showDetail)
     g_showDetail = showDetail;
 }
 
-static Bool g_isPocket = FALSE;
+static size_t maxNumCorrect = 0;
 
-void setIsPocket(Bool isPocket)
-{
-    g_isPocket = isPocket;
-}
-
-static Bool oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
+static Bool
+oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, PLAData *allPData, size_t numData)
 {
     /*out: Has wt been changed?*/
     if (checkPLAData(pData, *wt, numPLAVal) || checkIfWeightIsZero(*wt, numPLAVal) == 0) {
-        adjustWeight(pData, wt, numPLAVal);
+        if (!g_isPocket)
+            adjustWeight(pData, wt, numPLAVal);
+        else {
+            memcpy(bufWt.w, wt->w, sizeof(int) * numPLAVal);    /*copy wt*/
+            bufWt.threshold = wt->threshold;
+            adjustWeight(pData, &bufWt, numPLAVal);             /*update bufWt*/
+            
+            size_t nc;
+            
+            if ((nc = countNumCorrect(allPData, bufWt, numData, numPLAVal)) >= maxNumCorrect) {
+                /*keeping best wt in pocket*/
+                maxNumCorrect = nc;
+                memcpy(wt->w, bufWt.w, sizeof(int) * numPLAVal);
+                wt->threshold = bufWt.threshold;
+            }
+            else
+                return FALSE;
+        }
         if (g_showDetail) {
             showPLAData(pData, numPLAVal);
             showWeight(*wt, numPLAVal);
+            if (g_isPocket) {
+                printf("correct rate: %u / %u, %g%%\n", (unsigned int)maxNumCorrect
+                    , (unsigned int)numData, (double)(maxNumCorrect * 100) / (double)numData);
+            }
         }
         return TRUE;
     }
@@ -65,19 +91,27 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
     /*out: adjust times of weight*/
     static size_t startIdx = 0; /*start from pData[0]*/
     static size_t countUp = 0;  /*if up to numData, end the iteration*/
-    size_t countAdjust = 0;     /*count # of data used to adjust weight*/
+    size_t countAdjust = 0;     /*count # of data used to adjust wt*/
     
     while (iter > 0) {
         if (startIdx == numData)
             startIdx = 0;
-        if (oneTraining(pData[startIdx++], wt, numPLAVal)) {
+        if (oneTraining(pData[startIdx++], wt, numPLAVal, pData, numData)) {
+            /*wt has been updated*/
             countUp = 0;
             ++countAdjust;
             if (g_isStopByAdjustTimes)
                 --iter;
         }
-        else if (++countUp == numData)
-            break;
+        else if (++countUp == numData) {
+            if (g_isPocket && maxNumCorrect < numData) {
+                /*Reset if pocket can't find better wt*/
+                 maxNumCorrect = countUp = 0;
+                 puts("----------Reset----------");
+            }
+            else
+                break;
+        }
         if (!g_isStopByAdjustTimes)
             --iter;
     }
@@ -109,13 +143,15 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
     /*iter: Iteration times*/
     /*out: adjust times of weight*/
     static size_t countUp = 0;  /*if up to numData, end the iteration*/
-    size_t countAdjust = 0;     /*count # of data used to adjust weight*/
+    size_t countAdjust = 0;     /*count # of data used to adjust wt*/
     
-    if (g_wrongDataIdx == NULL && resetWrongDataIdx(numData) == NULL)
+    if ((g_wrongDataIdx == NULL && resetWrongDataIdx(numData) == NULL))
         return 0;
     while (iter > 0) {
         size_t idx = (size_t)(rand() % (numData - countUp));
-        if (oneTraining(pData[g_wrongDataIdx[idx]], wt, numPLAVal)) {
+        
+        if (oneTraining(pData[g_wrongDataIdx[idx]], wt, numPLAVal, pData, numData)) {
+            /*wt has been updated*/
             countUp = 0;
             if (resetWrongDataIdx(numData) == NULL)
                 return 0;
@@ -126,6 +162,14 @@ trainingByRandomSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
         else if (++countUp < numData) {
             memmove(g_wrongDataIdx + idx, g_wrongDataIdx + idx + 1
                 , sizeof(size_t) * (numData - countUp - idx));  /*remove correct data idx*/
+        }
+        else if (g_isPocket && countUp == numData && maxNumCorrect < numData) {
+            /*Reset if pocket can't find better wt*/
+            if (resetWrongDataIdx(numData) == NULL)
+                return 0;
+            maxNumCorrect = countUp = 0;
+            if (g_showDetail)
+                puts("----------Reset----------");
         }
         else
             break;
@@ -164,6 +208,8 @@ void closePLA(PLAData *pData, Weight wt, size_t numData)
         free(g_wrongDataIdx);
         g_wrongDataIdx = NULL;
     }
+    if (g_isPocket)
+        closeWeight(bufWt);
 }
 
 /*

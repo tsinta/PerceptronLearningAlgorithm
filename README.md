@@ -19,6 +19,8 @@ show: show the data which use to adjust weight
 
 adjust: one iteration is equal to one adjust time, not one data
 
+pocket: keeping the best weight in pocket(the weight will be reset if it can't find better weight)
+
 #####For example:
 C:\...\>  runPLA.exe data.txt random strict show adjust
 
