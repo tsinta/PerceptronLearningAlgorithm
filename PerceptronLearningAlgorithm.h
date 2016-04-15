@@ -35,6 +35,9 @@ Bool initPLA(char *fileName, PLAData **pData, Weight *wt, size_t *numData, size_
 
 void setShowDetail(Bool showDetail);
 
+void setIsPocket(Bool isPocket);
+/*if isPocket == TRUE, keeping best wt in pocket*/
+
 extern void setIsStrict(Bool isStrict);
 /*If isStrict == TRUE, wt will be adjusted even if wt*val == threshold*/
 

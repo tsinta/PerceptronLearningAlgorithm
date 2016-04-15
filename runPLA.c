@@ -23,6 +23,8 @@ void setPLACommand(int argc, char *argv[], char **fileName)
             setShowDetail(TRUE);
         else if (strcmp(argv[i], "adjust") == 0)
             setIsStopByAdjustTimes(TRUE);
+        else if (strcmp(argv[i], "pocket") == 0)
+            setIsPocket(TRUE);
     }
 }
 

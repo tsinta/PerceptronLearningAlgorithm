@@ -30,6 +30,13 @@ void setShowDetail(Bool showDetail)
     g_showDetail = showDetail;
 }
 
+static Bool g_isPocket;
+
+void setIsPocket(Bool isPocket)
+{
+    g_isPocket = isPocket;
+}
+
 static Bool oneTraining(PLAData pData, Weight *wt, size_t numPLAVal)
 {
     /*out: Has wt been changed?*/
@@ -170,6 +177,7 @@ int main()
     setShowDetail(TRUE);
     setIsRandomTraining(TRUE);
     setIsStopByAdjustTimes(TRUE);
+    setIsPocket(TRUE);
     scanf("%s", fileName);
     initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
     size_t iter = 0;
