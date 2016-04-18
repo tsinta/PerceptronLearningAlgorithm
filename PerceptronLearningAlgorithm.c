@@ -134,7 +134,7 @@ static size_t* resetWrongDataIdx(size_t numData)
     size_t i;
     
     for (i = 0; i < numData; ++i)
-        (g_wrongDataIdx)[i] = i;
+        g_wrongDataIdx[i] = i;
     return g_wrongDataIdx;
 }
 
