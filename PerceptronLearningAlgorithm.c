@@ -106,8 +106,9 @@ trainingByNormalSequence(PLAData *pData, Weight *wt, size_t numData, size_t numP
         else if (++countUp == numData) {
             if (g_isPocket && maxNumCorrect < numData) {
                 /*Reset if pocket can't find better wt*/
-                 maxNumCorrect = countUp = 0;
-                 puts("----------Reset----------");
+                maxNumCorrect = countUp = 0;
+                if (g_showDetail)
+                    puts("----------Reset----------");
             }
             else
                 break;
