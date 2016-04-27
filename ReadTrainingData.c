@@ -30,57 +30,85 @@ static void* revisedMalloc(size_t sz, char *funcName)
     return bufptr;
 }
 
-size_t assignOneLineToInts(char *lineData, int **val, size_t numVal)
+size_t assignOneLineToDTypes(char *lineData, DType **val, size_t numVal)
 {
     /*lineData: One line of data*/
-    /*val: Need to put int from lineData, it would be malloc if it's NULL*/
+    /*val: Need to put DType from lineData, it would be malloc if it's NULL*/
     /*numVal: check the # of value. it's 0 means it's
         the first time to read, and *val must be NULL*/
-    /*out: # of int*/
+    /*out: # of DType*/
     if (numVal == 0) {
         if (*val != NULL)
             free(*val);
-        if ((*val = (int*)revisedMalloc(sizeof(int) * MAXVAL, "assignOneLineToInts")) == NULL)
+        if ((*val = (DType*)revisedMalloc(sizeof(DType) * MAXVAL, "assignOneLineToDTypes")) == NULL)
             return 0;
     }
     
     size_t i = 0;           /*idx of lineData*/
-    size_t numInts = 0;     /*count the # of int in one line*/
+    size_t numDTypes = 0;     /*count the # of DType in one line*/
     char c[2] = " ";        /*two continuous chars read from lineData*/
     size_t multiMaxVal = 1; /*multiple of MAXVAL*/
     
     for (i = 0; lineData[i] != '\n' && lineData[i] != '\0'; ++i) {
         if (!isdigit(c[1] = lineData[i])) {
+            #ifdef USE_DOUBLE
+            if (c[1] != '.') {
+            #endif
             c[0] = c[1];
             continue;
+            #ifdef USE_DOUBLE
+            }
+            #endif
         }
-        if (numVal == 0 && numInts >= MAXVAL * multiMaxVal) {
-            if (revisedRealloc((void**)val, sizeof(int) * (MAXVAL * (++multiMaxVal))
-                , "assignOneLineToInts") == NULL)
+        if (numVal == 0 && numDTypes >= MAXVAL * multiMaxVal) {
+            if (revisedRealloc((void**)val, sizeof(DType) * (MAXVAL * (++multiMaxVal))
+                , "assignOneLineToDTypes") == NULL)
                 return 0;
         }
-        if (numVal != 0 && numInts >= numVal) {
-            fprintf(stderr, "Too many ints in one line (assignOneLineToInts)\n");
+        if (numVal != 0 && numDTypes >= numVal) {
+            fprintf(stderr, "Too many DTypes in one line (assignOneLineToDTypes)\n");
             break;
         }
+        #ifdef USE_DOUBLE
         sscanf(lineData + ((c[0] != '-') ? i : (i - 1))
-            , "%d", &((*val)[numInts]));    /*get int from lineData*/
-        while (isdigit(lineData[i + 1]))
+            , "%lf", &((*val)[numDTypes]));    /*get DType(double) from lineData*/
+            
+        Bool meetDot = (c[1] != '.') ? FALSE : TRUE;
+        
+        c[0] = c[1] = ' ';
+        #else
+        sscanf(lineData + ((c[0] != '-') ? i : (i - 1))
+            , "%d", &((*val)[numDTypes]));    /*get DType(int) from lineData*/
+        #endif
+        while (isdigit(lineData[i + 1])
+            #ifdef USE_DOUBLE
+            || lineData[i + 1] == '.'
+            #endif
+            ) {
+            #ifdef USE_DOUBLE
+            if (lineData[i + 1] == '.') {
+                if (meetDot)
+                    break;
+                else
+                    meetDot = TRUE;
+            }
+            #endif
             ++i;
-        ++numInts;
+        }
+        ++numDTypes;
     }
-    if (numVal == 0 && numInts < MAXVAL) {
-        if (numInts == 0) {
+    if (numVal == 0 && numDTypes < MAXVAL) {
+        if (numDTypes == 0) {
             free(*val);
             *val = NULL;
         }
-        else if (revisedRealloc((void**)val, sizeof(int) * (numInts)
-            , "assignOneLineToInts") == NULL)
+        else if (revisedRealloc((void**)val, sizeof(DType) * (numDTypes)
+            , "assignOneLineToDTypes") == NULL)
             return 0;
     }
-    if (numVal != 0 && numInts != 0 && numVal != numInts)
-        fprintf(stderr, "The # of int is different (assignOneLineToInts)\n");
-    return numInts;
+    if (numVal != 0 && numDTypes != 0 && numVal != numDTypes)
+        fprintf(stderr, "The # of DType is different (assignOneLineToDTypes)\n");
+    return numDTypes;
 }
 
 Bool getOneLineFromFile(FILE *f, char **lineData)
@@ -103,7 +131,7 @@ Bool getOneLineFromFile(FILE *f, char **lineData)
     return (c != EOF || i != 0) ? TRUE : FALSE;
 }
 
-void closeTrainingData(int **data, size_t numData)
+void closeTrainingData(DType **data, size_t numData)
 {
     size_t i = 0;
     
@@ -116,11 +144,11 @@ void closeTrainingData(int **data, size_t numData)
     free(data);
 }
 
-static Bool allocEachData(int **iLineData, size_t numData, size_t numVal, Bool *isNeedReuse)
+static Bool allocEachData(DType **iLineData, size_t numData, size_t numVal, Bool *isNeedReuse)
 {
     /*out: Is it no error occur*/
     if (numData != 0 && !*isNeedReuse) {
-        *iLineData = (int*)revisedMalloc(sizeof(int) * numVal, "allocEachData");
+        *iLineData = (DType*)revisedMalloc(sizeof(DType) * numVal, "allocEachData");
         if (*iLineData == NULL)
             return FALSE;
     }
@@ -132,13 +160,13 @@ static Bool allocEachData(int **iLineData, size_t numData, size_t numVal, Bool *
 }
 
 static Bool
-checkNumVal(int **data, char *lineData, size_t *numData
+checkNumVal(DType **data, char *lineData, size_t *numData
     , size_t *numVal, size_t nowNumVal, Bool *isNeedReuse)
 {
     /*out: Is it no error occur*/
     if (*numVal == 0 && nowNumVal != 0)
         *numVal = nowNumVal; /*First time to assign *numVal*/
-    else if (nowNumVal == 0 && *numData != 0) {  /*No int in current line*/
+    else if (nowNumVal == 0 && *numData != 0) {  /*No DType in current line*/
         *isNeedReuse = TRUE;
         --*numData;
     }
@@ -152,10 +180,10 @@ checkNumVal(int **data, char *lineData, size_t *numData
     return TRUE;
 }
 
-static int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
+static DType** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
 {
-    /*out: The int data in f*/
-    int **data = (int**)revisedMalloc(sizeof(int*) * MAXDATA, "assignDataToVar");
+    /*out: The DType data in f*/
+    DType **data = (DType**)revisedMalloc(sizeof(DType*) * MAXDATA, "assignDataToVar");
     
     if (data == NULL)
         return NULL;
@@ -167,13 +195,13 @@ static int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
         return NULL;
     }
     
-    Bool isNeedReuse = FALSE;   /*reuse the data[*numData] when prev # of int is 0*/
+    Bool isNeedReuse = FALSE;   /*reuse the data[*numData] when prev # of DType is 0*/
     size_t multiMaxData = 1;    /*multiple of MAXDATA*/
     
     *numData = *numVal = 0;
     while (getOneLineFromFile(f, &lineData)) {
         if (*numData >= MAXDATA * multiMaxData) {
-            if(revisedRealloc((void**)&data, sizeof(int*) * (MAXDATA * (++multiMaxData))
+            if(revisedRealloc((void**)&data, sizeof(DType*) * (MAXDATA * (++multiMaxData))
                 , "assignDataToVar") == NULL)
                 return NULL;
         }
@@ -181,7 +209,7 @@ static int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
             && *numData != 0 && !isNeedReuse)
             return NULL;
         
-        size_t nowNumVal = assignOneLineToInts(lineData, &(data[*numData]), *numVal);
+        size_t nowNumVal = assignOneLineToDTypes(lineData, &(data[*numData]), *numVal);
         
         if (!checkNumVal(data, lineData, numData, numVal, nowNumVal, &isNeedReuse))
             return (data = NULL);
@@ -195,7 +223,7 @@ static int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
             closeTrainingData(data, *numData);
             data = NULL;
         }
-        else if (revisedRealloc((void**)&data, sizeof(int*) * (*numData)
+        else if (revisedRealloc((void**)&data, sizeof(DType*) * (*numData)
             , "assignDataToVar") == NULL)
             return 0;
     }
@@ -203,9 +231,9 @@ static int** assignDataToVar(FILE *f, size_t *numData, size_t *numVal)
     return data;
 }
 
-int** readTrainingData(char *fileName, size_t *numData, size_t *numVal)
+DType** readTrainingData(char *fileName, size_t *numData, size_t *numVal)
 {
-    /*out: int data in file*/
+    /*out: DType data in file*/
     FILE *f = fopen(fileName, "r");
     
     if (f == NULL) {
@@ -213,7 +241,7 @@ int** readTrainingData(char *fileName, size_t *numData, size_t *numVal)
         return NULL;
     }
     
-    int **data = assignDataToVar(f, numData, numVal);
+    DType **data = assignDataToVar(f, numData, numVal);
     
     fclose(f);
     return data;
@@ -224,13 +252,17 @@ int main()
 {*/
     /*char s[100];
     fgets(s, 100, stdin);
-    int *a = NULL;
-    size_t n = assignOneLineToInts(s, &a, 0);
+    DType *a = NULL;
+    size_t n = assignOneLineToDTypes(s, &a, 0);
     puts(s);
     printf("%u\n", (unsigned int)n);
     size_t i = 0;
     for (i = 0; i < n; ++i)
+        #ifdef USE_DOUBLE
+        printf("%lf , ", a[i]);
+        #else
         printf("%d , ", a[i]);
+        #endif
     free(a);*/
     /*char fileName[MAXCHAR], *lineData;
     lineData = (char*)malloc(sizeof(char)*MAXCHAR);
@@ -245,11 +277,16 @@ int main()
     scanf("%s", fileName);
     FILE *f = fopen(fileName, "r");
     size_t numData = 0, numVal = 0;
-    int **data = assignDataToVar(f, &numData, &numVal);
+    DType **data = assignDataToVar(f, &numData, &numVal);
     size_t i,j;
     for (i = 0; i < numData; ++i) {
-        for (j = 0; j < numVal; ++j)
+        for (j = 0; j < numVal; ++j) {
+            #ifdef USE_DOUBLE
+            printf("%lf , ", data[i][j]);
+            #else
             printf("%d , ", data[i][j]);
+            #endif
+        }
         putchar('\n');
     }
     if (data != NULL)
@@ -258,11 +295,16 @@ int main()
     /*char fileName[MAXCHAR];
     scanf("%s", fileName);
     size_t numData = 0, numVal = 0;
-    int **data = ReadTrainingData(fileName, &numData, &numVal);
+    DType **data = readTrainingData(fileName, &numData, &numVal);
     size_t i,j;
     for (i = 0; i < numData; ++i) {
-        for (j = 0; j < numVal; ++j)
+        for (j = 0; j < numVal; ++j) {
+            #ifdef USE_DOUBLE
+            printf("%lf , ", data[i][j]);
+            #else
             printf("%d , ", data[i][j]);
+            #endif
+        }
         putchar('\n');
     }
     if (data != NULL)
