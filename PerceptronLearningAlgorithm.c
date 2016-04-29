@@ -7,7 +7,7 @@
 #include "AnalyzeTrainingData.h"
 #include "PerceptronLearningAlgorithm.h"
 
-static int **g_data = NULL;
+static DType **g_data = NULL;
 static Weight g_pocketWt;    /*used for pocket*/
 static Bool g_isPocket = FALSE;
 
@@ -54,7 +54,7 @@ oneTraining(PLAData pData, Weight *wt, size_t numPLAVal, PLAData *allPData, size
         if (g_isPocket
             && (nc = countNumCorrect(allPData, *wt, numData, numPLAVal)) > g_pocketNumCorrect) {
             g_pocketNumCorrect = nc;
-            memcpy(g_pocketWt.w, wt->w, sizeof(int) * numPLAVal);
+            memcpy(g_pocketWt.w, wt->w, sizeof(DType) * numPLAVal);
             g_pocketWt.threshold = wt->threshold;
             updatePocket = TRUE;
         }

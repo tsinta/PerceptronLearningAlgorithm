@@ -1,8 +1,13 @@
 ##Using perceptron learning algorithm to train any linear separable input file
 
-It only allows integer in training data
 ####Build Command:
+#####Integer data:
+
 C:\...\> gcc -Wall -ansi -static -o runPLA.exe *.c
+
+#####Floating point data:
+
+C:\...\> gcc -Wall -ansi -DUSE_DOUBLE -static -o runPLA.exe *.c
 
 ####Run:
 C:\...\>  runPLA.exe data.txt

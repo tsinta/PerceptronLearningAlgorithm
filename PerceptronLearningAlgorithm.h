@@ -3,6 +3,15 @@
 #ifndef PERCEPTRON_LEARNING_ALGORITHM
 #define PERCEPTRON_LEARNING_ALGORITHM
 
+#ifndef DEFINE_DATA_TYPE
+#define DEFINE_DATA_TYPE
+    #ifdef USE_DOUBLE
+        typedef double DType;
+    #else
+        typedef int DType;
+    #endif
+#endif
+
 #ifndef ENUM_BOOL
 #define ENUM_BOOL
 typedef enum { FALSE, TRUE } Bool;
@@ -16,7 +25,7 @@ typedef enum { BAD, GOOD } PLAStatus;
 #ifndef STRUCT_PLADATA
 #define STRUCT_PLADATA
 typedef struct {
-    int *val;
+    DType *val;
     PLAStatus isGood;
 } PLAData;
 #endif
@@ -24,7 +33,7 @@ typedef struct {
 #ifndef STRUCT_WEIGHT
 #define STRUCT_WEIGHT
 typedef struct {
-    int *w;
+    DType *w;
     int threshold;  /*w * val > threshold -> GOOD; w * val < threshold -> BAD*/
 } Weight;
 #endif
