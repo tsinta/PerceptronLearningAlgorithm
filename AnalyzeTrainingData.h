@@ -3,6 +3,15 @@
 #ifndef ANALYZE_TRAINING_DATA
 #define ANALYZE_TRAINING_DATA
 
+#ifndef DEFINE_DATA_TYPE
+#define DEFINE_DATA_TYPE
+    #ifdef USE_DOUBLE
+        typedef double DType;
+    #else
+        typedef int DType;
+    #endif
+#endif
+
 #ifndef ENUM_BOOL
 #define ENUM_BOOL
 typedef enum { FALSE, TRUE } Bool;
@@ -16,7 +25,7 @@ typedef enum { BAD, GOOD } PLAStatus;
 #ifndef STRUCT_PLADATA
 #define STRUCT_PLADATA
 typedef struct {
-    int *val;
+    DType *val;
     PLAStatus isGood;
 } PLAData;
 #endif
@@ -24,12 +33,12 @@ typedef struct {
 #ifndef STRUCT_WEIGHT
 #define STRUCT_WEIGHT
 typedef struct {
-    int *w;
+    DType *w;
     int threshold;  /*w * val > threshold -> GOOD; w * val < threshold -> BAD*/
 } Weight;
 #endif
 
-PLAData* convertToPLAData(int **data, size_t numData, size_t numVal);
+PLAData* convertToPLAData(DType **data, size_t numData, size_t numVal);
 /*example: data = {1,2,1} => pData = {1,2,GOOD}*/
 
 Weight genInitWeight(size_t numPLAVal);
@@ -44,7 +53,7 @@ Bool checkPLAData(PLAData pData, Weight wt, size_t numPLAVal);
 void adjustWeight(PLAData pData, Weight *wt, size_t numPLAVal);
 /*adjust weight by pData*/
 
-int checkIfWeightIsZero(Weight wt, size_t numPLAVal);
+DType checkIfWeightIsZero(Weight wt, size_t numPLAVal);
 /*return 0->0 vector, return not 0->none 0 vector*/
 
 size_t countNumCorrect(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal);

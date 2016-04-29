@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "AnalyzeTrainingData.h"
 
-PLAData* convertToPLAData(int **data, size_t numData, size_t numVal)
+PLAData* convertToPLAData(DType **data, size_t numData, size_t numVal)
 {
     /*data: input data from file*/
     /*out: Converted data*/
@@ -29,14 +29,19 @@ Weight genInitWeight(size_t numPLAVal)
     size_t i;   /*idx of wt.w*/
     Weight wt;  /*init weight, it will malloc wt.w*/
     
-    wt.w = (int*)malloc(sizeof(int) * numPLAVal);
+    wt.w = (DType*)malloc(sizeof(DType) * numPLAVal);
     if(wt.w == NULL) {
         fprintf(stderr, "Failed to malloc in genInitWeight\n");
         wt.threshold = 0;
         return wt;
     }
-    for (i = 0; i < numPLAVal; ++i)
+    for (i = 0; i < numPLAVal; ++i) {
+        #ifdef USE_DOUBLE
+        wt.w[i] = 0.0;
+        #else
         wt.w[i] = 0;
+        #endif
+    }
     wt.threshold = 0;
     return wt;
 }
@@ -52,7 +57,7 @@ Bool checkPLAData(PLAData pData, Weight wt, size_t numPLAVal)
 {
     /*return FALSE->don't need adjust, return TRUE->need adjust*/
     size_t i;   /*idx of pData.val*/
-    int innerProduct = 0;
+    DType innerProduct = 0;
     
     for (i = 0; i < numPLAVal; ++i)
         innerProduct += pData.val[i] * wt.w[i];
@@ -70,17 +75,23 @@ void adjustWeight(PLAData pData, Weight *wt, size_t numPLAVal)
     wt->threshold += ((pData.isGood == GOOD) ? -1 : 1);
 }
 
-int checkIfWeightIsZero(Weight wt, size_t numPLAVal)
+#define TOL 0.0000001
+
+DType checkIfWeightIsZero(Weight wt, size_t numPLAVal)
 {
     /*Check if the weight is 0 vector*/
     /*out: 0->0 vector, not 0->none 0 vector*/
     size_t i;   /*idx of wt.w*/
     
     for (i = 0; i < numPLAVal; ++i) {
+        #ifdef USE_DOUBLE
+        if (-TOL > wt.w[i] || wt.w[i] > TOL)
+        #else
         if (wt.w[i] != 0)
+        #endif
             return wt.w[i];
     }
-    return wt.threshold;
+    return (DType)wt.threshold;
 }
 
 size_t countNumCorrect(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal)
@@ -103,12 +114,21 @@ void showPLAData(PLAData pData, size_t numPLAVal)
 {
     if (numPLAVal == 0)
         return;
+    #ifdef USE_DOUBLE
+    printf("%g", pData.val[0]);
+    #else
     printf("%d", pData.val[0]);
+    #endif
     
     size_t i;
     
-    for (i = 1; i < numPLAVal; ++i)
+    for (i = 1; i < numPLAVal; ++i) {
+        #ifdef USE_DOUBLE
+        printf(", %g", pData.val[i]);
+        #else
         printf(", %d", pData.val[i]);
+        #endif
+    }
     printf(" : %c\n", (pData.isGood ? '+' : '-'));
 }
 
@@ -116,17 +136,37 @@ void showWeight(Weight wt, size_t numPLAVal)
 {
     if (numPLAVal == 0)
         return;
+    #ifdef USE_DOUBLE
+    printf("%g*X1", wt.w[0]);
+    #else
     printf("%d*X1", wt.w[0]);
+    #endif
     
     size_t i;
     
     for (i = 1; i < numPLAVal; ++i) {
+        #ifdef USE_DOUBLE
+        if (wt.w[i] >= 0.0)
+            printf(" + %g*X%u", wt.w[i], (unsigned int)i + 1);
+        else
+            printf(" - %g*X%u", -wt.w[i], (unsigned int)i + 1);
+        #else
         if (wt.w[i] >= 0)
             printf(" + %d*X%u", wt.w[i], (unsigned int)i + 1);
         else
             printf(" - %d*X%u", -wt.w[i], (unsigned int)i + 1);
+        #endif
     }
     printf(" > %d -> +\n", wt.threshold);
+    #ifdef USE_DOUBLE
+    printf("%g*X1", wt.w[0]);
+    for(i = 1; i < numPLAVal; ++i) {
+        if (wt.w[i] >= 0.0)
+            printf(" + %g*X%u", wt.w[i], (unsigned int)i + 1);
+        else
+            printf(" - %g*X%u", -wt.w[i], (unsigned int)i + 1);
+    }
+    #else
     printf("%d*X1", wt.w[0]);
     for(i = 1; i < numPLAVal; ++i) {
         if (wt.w[i] >= 0)
@@ -134,6 +174,7 @@ void showWeight(Weight wt, size_t numPLAVal)
         else
             printf(" - %d*X%u", -wt.w[i], (unsigned int)i + 1);
     }
+    #endif
     printf(" < %d -> -\n", wt.threshold);
 }
 
@@ -159,37 +200,51 @@ int main()
     char fileName[100];
     scanf("%s", fileName);
     size_t numData = 0, numVal = 0;
-    int **data = readTrainingData(fileName, &numData, &numVal);
+    DType **data = readTrainingData(fileName, &numData, &numVal);
     PLAData *pData = convertToPLAData(data, numData, numVal);
     size_t i,j;
     setIsStrict(TRUE);
     for (i = 0; i < numData; ++i) {
-        for (j = 0; j < numVal - 1; ++j)
+        for (j = 0; j < numVal - 1; ++j) {
+            #ifdef USE_DOUBLE
+            printf("%g , ", pData[i].val[j]);
+            #else
             printf("%d , ", pData[i].val[j]);
+            #endif
+        }
         printf("%c\n", (pData[i].isGood == GOOD) ? '+' : '-');
     }
     size_t numPLAVal = numVal - 1;
     int idx;
-    if (idx < numData) {
-        Weight wt = genInitWeight(numPLAVal);
-        while(1) {
-            showWeight(wt, numPLAVal);
-            scanf("%d", &idx);
-            if (idx >= numData)
-                break;
-            Bool check = 0;
-            printf("check = %d\n", (check = checkPLAData(pData[idx], wt, numPLAVal)));
-            if (check || (checkIfWeightIsZero(wt, numPLAVal) == 0)) {
-                showPLAData(pData[idx], numPLAVal);
-                adjustWeight(pData[idx], &wt, numPLAVal);
-            }
+    Weight wt = genInitWeight(numPLAVal);
+    while(1) {
+        showWeight(wt, numPLAVal);
+        scanf("%d", &idx);
+        if (idx >= numData)
+            break;
+        Bool check = 0;
+        printf("check = %d\n", (check = checkPLAData(pData[idx], wt, numPLAVal)));
+        #ifdef USE_DOUBLE
+        double zeroWeightCheck;
+        #endif
+        if (check 
+            || 
+            #ifdef USE_DOUBLE
+            (-TOL < (zeroWeightCheck = checkIfWeightIsZero(wt, numPLAVal))
+                && zeroWeightCheck < TOL)
+            #else
+            (checkIfWeightIsZero(wt, numPLAVal) == 0)
+            #endif
+            ) {
+            showPLAData(pData[idx], numPLAVal);
+            adjustWeight(pData[idx], &wt, numPLAVal);
         }
-        size_t nc = countNumCorrect(pData, wt, numData, numPLAVal);
-        printf("correct: %u / %u, %g%%\n", (unsigned int)nc
-            , (unsigned int)numData, (double)(nc * 100) / (double)numData);
-        closePLAData(pData);
-        closeWeight(wt);
     }
+    size_t nc = countNumCorrect(pData, wt, numData, numPLAVal);
+    printf("correct: %u / %u, %g%%\n", (unsigned int)nc
+        , (unsigned int)numData, (double)(nc * 100) / (double)numData);
+    closePLAData(pData);
+    closeWeight(wt);
     if (data != NULL)
         closeTrainingData(data, numData);
     return 0;
