@@ -107,7 +107,7 @@ size_t assignOneLineToDTypes(char *lineData, DType **val, size_t numVal)
             return 0;
     }
     if (numVal != 0 && numDTypes != 0 && numVal != numDTypes)
-        fprintf(stderr, "The # of data is different (assignOneLineToDTypes)\n");
+        fprintf(stderr, "The # of value is different (assignOneLineToDTypes)\n");
     return numDTypes;
 }
 
