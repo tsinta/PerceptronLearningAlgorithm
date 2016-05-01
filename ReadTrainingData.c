@@ -66,7 +66,7 @@ size_t assignOneLineToDTypes(char *lineData, DType **val, size_t numVal)
                 return 0;
         }
         if (numVal != 0 && numDTypes >= numVal) {
-            fprintf(stderr, "Too many DTypes in one line (assignOneLineToDTypes)\n");
+            fprintf(stderr, "Too many values in one line (assignOneLineToDTypes)\n");
             break;
         }
         #ifdef USE_DOUBLE
@@ -107,7 +107,7 @@ size_t assignOneLineToDTypes(char *lineData, DType **val, size_t numVal)
             return 0;
     }
     if (numVal != 0 && numDTypes != 0 && numVal != numDTypes)
-        fprintf(stderr, "The # of DType is different (assignOneLineToDTypes)\n");
+        fprintf(stderr, "The # of data is different (assignOneLineToDTypes)\n");
     return numDTypes;
 }
 
@@ -165,13 +165,13 @@ checkNumVal(DType **data, char *lineData, size_t *numData
 {
     /*out: Is it no error occur*/
     if (*numVal == 0 && nowNumVal != 0)
-        *numVal = nowNumVal; /*First time to assign *numVal*/
-    else if (nowNumVal == 0 && *numData != 0) {  /*No DType in current line*/
+        *numVal = nowNumVal;                    /*First time to assign *numVal*/
+    else if (nowNumVal == 0 && *numData != 0) { /*No DType in current line*/
         *isNeedReuse = TRUE;
         --*numData;
     }
     else if (*numVal != nowNumVal){
-        fprintf(stderr, "The data is wrong in data %u\n", (unsigned int)*numData + 1);
+        fprintf(stderr, "The data is wrong in line %u\n", (unsigned int)*numData + 1);
         closeTrainingData(data, *numData + 1);
         free(lineData);
         *numData = *numVal = 0;
@@ -292,7 +292,7 @@ int main()
     if (data != NULL)
         closeTrainingData(data, numData);
     fclose(f);*/
-    /*char fileName[MAXCHAR];
+/*    char fileName[MAXCHAR];
     scanf("%s", fileName);
     size_t numData = 0, numVal = 0;
     DType **data = readTrainingData(fileName, &numData, &numVal);
