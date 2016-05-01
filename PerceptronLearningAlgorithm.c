@@ -178,9 +178,39 @@ size_t showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numP
     return nc;
 }
 
+static char *g_testFileName = NULL;
+
+void setTestFileName(char *testFileName)
+{
+    g_testFileName = testFileName;
+}
+
+void testResult(Weight wt, size_t numPLAVal)
+{
+    /*out: # of correct by testing*/
+    size_t numTestData, numTestVal;
+    DType **testData = readTrainingData(g_testFileName, &numTestData, &numTestVal);
+    
+    if (testData == NULL || numTestData == 0 || numTestVal != numPLAVal + 1) {
+        fprintf(stderr, "Can't read the testing file: %s\n", g_testFileName);
+        return;
+    }
+    
+    PLAData *pTestData = convertToPLAData(testData, numTestData, numTestVal);
+    size_t nc = countNumCorrect(pTestData, (g_isPocket ? g_pocketWt : wt), numTestData, numPLAVal);
+    
+    printf("correct rate of testing data: %u / %u, %g%%\n"
+    , (unsigned int)nc, (unsigned int)numTestData, (double)(nc * 100) / (double)numTestData);
+    closeTrainingData(testData, numTestData);
+    testData = NULL;
+    closePLAData(pTestData);
+    pTestData = NULL;
+}
+
 void closePLA(PLAData *pData, Weight wt, size_t numData)
 {
     closeTrainingData(g_data, numData);
+    g_data = NULL;
     closePLAData(pData);
     closeWeight(wt);
     if (g_wrongDataIdx != NULL) {
@@ -194,7 +224,7 @@ void closePLA(PLAData *pData, Weight wt, size_t numData)
 /*
 int main()
 {
-    char fileName[100];
+    char fileName[100], testFileName[100];
     PLAData *pData = NULL;
     Weight wt;
     size_t numData, numPLAVal;
@@ -203,7 +233,8 @@ int main()
     setIsRandomTraining(TRUE);
     setIsStopByAdjustTimes(TRUE);
     setIsPocket(TRUE);
-    scanf("%s", fileName);
+    scanf("%s %s", fileName, testFileName);
+    setTestFileName(testFileName);
     initPLA(fileName, &pData, &wt, &numData, &numPLAVal);
     size_t iter = 0;
     while (scanf("%u", (unsigned int*)&iter) != EOF) {
@@ -215,6 +246,8 @@ int main()
         if (showTrainingResult(pData, wt, numData, numPLAVal) == numData)
             break;
     }
+    if (g_testFileName != NULL)
+        testResult(wt, numPLAVal);
     closePLA(pData, wt, numData);
     return 0;
 }

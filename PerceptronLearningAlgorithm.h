@@ -63,6 +63,10 @@ size_t
 
 size_t showTrainingResult(PLAData *pData, Weight wt, size_t numData, size_t numPLAVal);
 
+void setTestFileName(char *testFileName);
+
+void testResult(Weight wt, size_t numPLAVal);
+
 void closePLA(PLAData *pData, Weight wt, size_t numData);
 /*Must add to the end*/
 
