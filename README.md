@@ -14,6 +14,10 @@ C:\...\>  runPLA.exe data.txt
 
 data.txt <-file name
 
+#####You can add a testing data if you want to test training result:
+
+C:\...\> runPLA.txt data.txt test.txt
+
 #####Some keywords can be added behind the file name:
 
 random: training by random sequence

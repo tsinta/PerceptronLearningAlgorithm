@@ -25,6 +25,8 @@ void setPLACommand(int argc, char *argv[], char **fileName)
             setIsStopByAdjustTimes(TRUE);
         else if (strcmp(argv[i], "pocket") == 0)
             setIsPocket(TRUE);
+        else
+            setTestFileName(argv[i]);
     }
 }
 
@@ -60,6 +62,7 @@ int main(int argc, char *argv[])
         if (showTrainingResult(pData, wt, numData, numPLAVal) == numData)
             break;
     }
+    testResult(wt, numPLAVal);
     closePLA(pData, wt, numData);
     return 0;
 }

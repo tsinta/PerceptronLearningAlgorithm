@@ -188,6 +188,9 @@ void setTestFileName(char *testFileName)
 void testResult(Weight wt, size_t numPLAVal)
 {
     /*out: # of correct by testing*/
+    if (g_testFileName == NULL)
+        return;
+    
     size_t numTestData, numTestVal;
     DType **testData = readTrainingData(g_testFileName, &numTestData, &numTestVal);
     
